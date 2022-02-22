@@ -10,3 +10,4 @@ jobs:
           node-version: '16'
       - run: make install
       - run: make lint 
+      - run: make test

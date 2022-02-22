@@ -1,7 +1,7 @@
 /* global test, expect */
 
-import path from 'path';
 import { readFileSync } from 'fs';
+import path from 'path';
 import generateDiff from '../src/index.js';
 
 const getFixturesPath = (filename) => path.resolve('__fixtures__', filename);
