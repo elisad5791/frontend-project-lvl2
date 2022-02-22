@@ -5,5 +5,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '16'
+      - run: make install
+      - run: make lint 
