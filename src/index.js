@@ -16,12 +16,12 @@ const generateDiff = (filepath1, filepath2) => {
     const val2 = `${key}: ${json2[key]}`;
     if (!Object.hasOwn(json1, key)) return `  + ${val2}`;
     if (!Object.hasOwn(json2, key)) return `  - ${val1}`;
-    if (json1[key] === json2[key])  return `    ${val1}`;
+    if (json1[key] === json2[key]) return `    ${val1}`;
     return `  - ${val1}\n  + ${val2}`;
   }).join('\n');
   const diff = `{\n${body}\n}`;
 
-  console.log(diff);
+  return diff;
 };
 
 export default generateDiff;

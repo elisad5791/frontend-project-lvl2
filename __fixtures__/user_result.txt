@@ -1,0 +1,7 @@
+{
+  - age: 25
+  - married: true
+  + married: false
+  - name: Vasya
+  + name: Petya
+}
