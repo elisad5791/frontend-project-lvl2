@@ -11,4 +11,3 @@ const readAndParse = (filepath) => {
 };
 
 export default readAndParse;
-  

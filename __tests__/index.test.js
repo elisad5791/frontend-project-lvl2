@@ -6,7 +6,9 @@ import generateDiff from '../src/index.js';
 
 const getFixturesPath = (filename) => path.resolve('__fixtures__', filename);
 
-let result1, result2, result3;
+let result1;
+let result2;
+let result3;
 
 beforeEach(() => {
   const resultname1 = getFixturesPath('file_result.txt');
@@ -24,7 +26,7 @@ test('json', () => {
   const filename4 = getFixturesPath('media2.json');
   const filename5 = getFixturesPath('user1.json');
   const filename6 = getFixturesPath('user2.json');
-  
+
   expect(generateDiff(filename1, filename2)).toBe(result1);
   expect(generateDiff(filename3, filename4)).toBe(result2);
   expect(generateDiff(filename5, filename6)).toBe(result3);
