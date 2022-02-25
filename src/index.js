@@ -1,25 +1,55 @@
 import _ from 'lodash';
 import readAndParse from './parsers.js';
 
+const getDiff = (obj1, obj2) => {
+  const iter = (tree1, tree2, path) => {
+    const tree = Object.assign({}, tree1, tree2);
+    const keys = _.sortBy(Object.keys(tree));
+    return keys.reduce((acc, key) => {
+      const newPath = path.concat(key);
+      const value1 = _.get(obj1, newPath);
+      const value2 = _.get(obj2, newPath);
+      const keyDel = `${key}_del`;
+      const keyAdd = `${key}_add`;
+      if(!_.isPlainObject(value1) || !_.isPlainObject(value2)) {
+        if (!_.has(obj1, newPath)) return Object.assign({}, acc, { [keyAdd]: value2 });
+        if (!_.has(obj2, newPath)) return Object.assign({}, acc, { [keyDel]: value1 });
+        if (value1 === value2) return Object.assign({}, acc, { [key]: value1 });
+        return Object.assign({}, acc, { [keyDel]: value1 }, { [keyAdd]: value2 });
+      }
+      return Object.assign({}, acc, { [key]: iter(value1, value2, newPath) });
+    }, {});
+  };
+
+  return iter(obj1, obj2, []);
+};
+
+const pad = (txt, count) => txt.split('\n')
+  .map((item) => `${' '.repeat(count)}${item}`)
+  .join('\n');
+
+const stylish = (obj, start = false) => {
+  const entries = Object.entries(obj);
+  const body = entries.map(([key, value]) => {
+    const newKey = key.endsWith('_add') ? `+ ${key.replace('_add', '')}` :
+                   key.endsWith('_del') ? `- ${key.replace('_del', '')}` :
+                   `  ${key}`;
+    const newValue = _.isPlainObject(value) ? stylish(value) : value;
+    return `${newKey}: ${newValue}`;
+  }).join('\n');
+  const count = start ? 2 : 4;
+  const end = start ? '' : '  ';
+  const padBody = pad(body, count);
+  return `{\n${padBody}\n${end}}`;
+};
+
 const generateDiff = (filepath1, filepath2) => {
   const obj1 = readAndParse(filepath1);
   const obj2 = readAndParse(filepath2);
 
-  const keys1 = Object.keys(obj1);
-  const keys2 = Object.keys(obj2);
-  const sortedKeys = _.sortBy(_.union(keys1, keys2));
-
-  const body = sortedKeys.map((key) => {
-    const val1 = `${key}: ${obj1[key]}`;
-    const val2 = `${key}: ${obj2[key]}`;
-    if (!Object.hasOwn(obj1, key)) return `  + ${val2}`;
-    if (!Object.hasOwn(obj2, key)) return `  - ${val1}`;
-    if (obj1[key] === obj2[key]) return `    ${val1}`;
-    return `  - ${val1}\n  + ${val2}`;
-  }).join('\n');
-  const diff = `{\n${body}\n}`;
-
-  return diff;
+  const diff = getDiff(obj1, obj2);
+  const result = stylish(diff, true);
+  return result;
 };
 
 export default generateDiff;
