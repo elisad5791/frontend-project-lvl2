@@ -42,13 +42,12 @@ const stylish = (obj, start = true) => {
   return `{\n${padBody}\n${end}}`;
 };
 
-const generateDiff = (filepath1, filepath2, format = 'stylish') => {
+const generateDiff = (filepath1, filepath2) => {
   const obj1 = readAndParse(filepath1);
   const obj2 = readAndParse(filepath2);
 
   const diff = getDiff(obj1, obj2);
-  const formater = eval(format);   
-  const result = formater(diff);
+  const result = stylish(diff);
   return result;
 };
 
