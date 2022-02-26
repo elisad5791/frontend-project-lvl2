@@ -9,3 +9,5 @@
 [JSON files video](https://asciinema.org/a/470518)
 
 [YML files video](https://asciinema.org/a/471078)
+
+[Nested structures video](https://asciinema.org/a/471880)
