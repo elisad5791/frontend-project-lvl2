@@ -28,10 +28,10 @@ const pad = (txt, count) => txt.split('\n')
   .map((item) => `${' '.repeat(count)}${item}`)
   .join('\n');
 
-const stylish = (obj, start = false) => {
+const stylish = (obj, start = true) => {
   const entries = Object.entries(obj);
   const body = entries.map(([key, value]) => {
-    const newValue = _.isPlainObject(value) ? stylish(value) : value;
+    const newValue = _.isPlainObject(value) ? stylish(value, false) : value;
     if (key.endsWith('_add')) return `+ ${key.replace('_add', '')}: ${newValue}`;
     if (key.endsWith('_del')) return `- ${key.replace('_del', '')}: ${newValue}`;
     return `  ${key}: ${newValue}`;
@@ -42,12 +42,13 @@ const stylish = (obj, start = false) => {
   return `{\n${padBody}\n${end}}`;
 };
 
-const generateDiff = (filepath1, filepath2) => {
+const generateDiff = (filepath1, filepath2, format = 'stylish') => {
   const obj1 = readAndParse(filepath1);
   const obj2 = readAndParse(filepath2);
 
   const diff = getDiff(obj1, obj2);
-  const result = stylish(diff, true);
+  const formater = eval(format);   
+  const result = formater(diff);
   return result;
 };
 
