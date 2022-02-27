@@ -1,53 +1,58 @@
 import _ from 'lodash';
 import readAndParse from './parsers.js';
+import formatStylish from './formatters/stylish.js';
 
-const getDiff = (obj1, obj2) => {
-  const iter = (tree1, tree2, path) => {
-    const tree = { ...tree1, ...tree2 };
-    const keys = _.sortBy(Object.keys(tree));
-    return keys.reduce((acc, key) => {
+const getDiff = (tree1, tree2) => {
+  const iter = (obj1, obj2, path, isNotChangable) => {
+    const newObj1 = _.isPlainObject(obj1) ? _.cloneDeep(obj1) : {};
+    const newObj2 = _.isPlainObject(obj2) ? _.cloneDeep(obj2) : {};
+    const obj = { ...newObj1, ...newObj2 };
+    const keys = _.sortBy(Object.keys(obj));
+
+    const result = keys.flatMap((key) => {
       const newPath = path.concat(key);
-      const value1 = _.get(obj1, newPath);
-      const value2 = _.get(obj2, newPath);
-      const keyDel = `${key}_del`;
-      const keyAdd = `${key}_add`;
-      if (!_.isPlainObject(value1) || !_.isPlainObject(value2)) {
-        if (!_.has(obj1, newPath)) return { ...acc, [keyAdd]: value2 };
-        if (!_.has(obj2, newPath)) return { ...acc, [keyDel]: value1 };
-        if (value1 === value2) return { ...acc, [key]: value1 };
-        return { ...acc, [keyDel]: value1, [keyAdd]: value2 };
+      const val1 = _.get(tree1, newPath, null);
+      const val2 = _.get(tree2, newPath, null);
+      const isObj1 = _.isPlainObject(val1);
+      const isObj2 = _.isPlainObject(val2);
+      const newIsNotChangable = isObj1 && isObj2 ? false : true;
+      const value1  = isObj1 ? '[complex value]' : val1;
+      const value2  = isObj2 ? '[complex value]' : val2;
+
+      const record = [];
+      record[0] = newPath;
+      record[1] = value1;
+      record[2] = value2;
+
+      if (isNotChangable) {
+        record[3] = 'saved';
+      } else if (!_.has(tree1, newPath)) {
+        record[3] = 'added';
+      } else if (!_.has(tree2, newPath)) {
+        record[3] = 'removed';
+      } else if (value1 === value2) {
+        record[3] = 'saved';
+      } else {
+        record[3] = 'updated';
       }
-      return { ...acc, [key]: iter(value1, value2, newPath) };
-    }, {});
+
+      if (value1 !== '[complex value]' && value2 !== '[complex value]') {
+        return [record];
+      }
+      return [record, ...iter(val1, val2, newPath, newIsNotChangable)];
+    });
+    return result;
   };
 
-  return iter(obj1, obj2, []);
-};
-
-const pad = (txt, count) => txt.split('\n')
-  .map((item) => `${' '.repeat(count)}${item}`)
-  .join('\n');
-
-const stylish = (obj, start = true) => {
-  const entries = Object.entries(obj);
-  const body = entries.map(([key, value]) => {
-    const newValue = _.isPlainObject(value) ? stylish(value, false) : value;
-    if (key.endsWith('_add')) return `+ ${key.replace('_add', '')}: ${newValue}`;
-    if (key.endsWith('_del')) return `- ${key.replace('_del', '')}: ${newValue}`;
-    return `  ${key}: ${newValue}`;
-  }).join('\n');
-  const count = start ? 2 : 4;
-  const end = start ? '' : '  ';
-  const padBody = pad(body, count);
-  return `{\n${padBody}\n${end}}`;
+  const diff = iter(tree1, tree2, [], false);
+  return diff;
 };
 
 const generateDiff = (filepath1, filepath2) => {
   const obj1 = readAndParse(filepath1);
   const obj2 = readAndParse(filepath2);
-
   const diff = getDiff(obj1, obj2);
-  const result = stylish(diff);
+  const result = formatStylish(diff);
   return result;
 };
 

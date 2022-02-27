@@ -9,7 +9,7 @@ const getFixturesPath = (filename) => path.resolve('__fixtures__', filename);
 let result;
 
 beforeEach(() => {
-  const resultname = getFixturesPath('file_result.txt');
+  const resultname = getFixturesPath('file_result_stylish.txt');
   result = readFileSync(resultname, 'utf8');
 });
 
