@@ -38,4 +38,4 @@ Utility features:
 
 [Format Plain video](https://asciinema.org/a/472603)
 
-[Format Json video](https://asciinema.org/a/472604)
+[Format Json vide](https://asciinema.org/a/472604)
