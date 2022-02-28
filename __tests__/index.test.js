@@ -1,5 +1,4 @@
-/* global test, expect */
-
+import { test, expect } from '@jest/globals';
 import { readFileSync } from 'fs';
 import path from 'path';
 import generateDiff from '../src/index.js';
