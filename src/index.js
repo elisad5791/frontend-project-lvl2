@@ -1,8 +1,6 @@
 import _ from 'lodash';
 import readAndParse from './parsers.js';
-import formatStylish from './formatters/stylish.js';
-import formatJson from './formatters/json.js';
-import formatPlain from './formatters/plain.js';
+import getFormatter from './formatters/index.js';
 
 const getDiff = (tree1, tree2) => {
   const iter = (obj1, obj2, path, isNotChangable) => {
@@ -54,9 +52,8 @@ const generateDiff = (filepath1, filepath2, formatName = 'stylish') => {
   const obj1 = readAndParse(filepath1);
   const obj2 = readAndParse(filepath2);
   const diff = getDiff(obj1, obj2);
-  if (formatName === 'json') return formatJson(diff);
-  if (formatName === 'plain') return formatPlain(diff);
-  return formatStylish(diff);
+  const formatter = getFormatter(formatName);
+  return formatter(diff);
 };
 
 export default generateDiff;
