@@ -29,10 +29,10 @@ const getDiff = (tree1, tree2) => {
 
       const inFirst = _.has(tree1, newPath);
       const inSecond = _.has(tree2, newPath);
-      const record = [newPath, 
-                      value1,
-                      value2,
-                      getStatus(inFirst, inSecond, value1, value2, isNotChangable)];
+      const record = [newPath,
+        value1,
+        value2,
+        getStatus(inFirst, inSecond, value1, value2, isNotChangable)];
 
       if (value1 !== '[complex value]' && value2 !== '[complex value]') {
         return [record];
