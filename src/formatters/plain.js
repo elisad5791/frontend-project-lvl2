@@ -12,10 +12,12 @@ const formatPlain = (diff) => {
     const commonPart = `${acc}Property '${path}' was ${status}`;
     const addedPart = ` with value: ${secondVal}`;
     const updatedPart = `. From ${firstVal} to ${secondVal}`;
-    
+
     if (status === 'added') return `${commonPart}${addedPart}\n`;
     if (status === 'updated') return `${commonPart}${updatedPart}\n`;
     return `${commonPart}\n`;
   }, '');
   return output;
 };
+
+export default formatPlain;

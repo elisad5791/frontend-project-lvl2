@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import readAndParse from './parsers.js';
 import formatStylish from './formatters/stylish.js';
+import formatJson from './formatters/json.js';
+import formatPlain from './formatters/plain.js';
 
 const getDiff = (tree1, tree2) => {
   const iter = (obj1, obj2, path, isNotChangable) => {
@@ -15,9 +17,9 @@ const getDiff = (tree1, tree2) => {
       const val2 = _.get(tree2, newPath, null);
       const isObj1 = _.isPlainObject(val1);
       const isObj2 = _.isPlainObject(val2);
-      const newIsNotChangable = isObj1 && isObj2 ? false : true;
-      const value1  = isObj1 ? '[complex value]' : val1;
-      const value2  = isObj2 ? '[complex value]' : val2;
+      const newIsNotChangable = !(isObj1 && isObj2);
+      const value1 = isObj1 ? '[complex value]' : val1;
+      const value2 = isObj2 ? '[complex value]' : val2;
 
       const record = [];
       record[0] = newPath;
@@ -48,12 +50,13 @@ const getDiff = (tree1, tree2) => {
   return diff;
 };
 
-const generateDiff = (filepath1, filepath2) => {
+const generateDiff = (filepath1, filepath2, formatName = 'stylish') => {
   const obj1 = readAndParse(filepath1);
   const obj2 = readAndParse(filepath2);
   const diff = getDiff(obj1, obj2);
-  const result = formatStylish(diff);
-  return result;
+  if (formatName === 'json') return formatJson(diff);
+  if (formatName === 'plain') return formatPlain(diff);
+  return formatStylish(diff);
 };
 
 export default generateDiff;
