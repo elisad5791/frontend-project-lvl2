@@ -1,9 +1,14 @@
 import { test, expect } from '@jest/globals';
 import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
 import path from 'path';
-import generateDiff from '../src/index.js';
+import gendiff from '../src/index.js';
 
-const getFixturesPath = (filename) => path.resolve('__fixtures__', filename);
+const getFixturesPath = (filename) => {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  return path.join(__dirname, '..', '__fixtures__', filename);
+};
 
 test.each(['json', 'yml'])('generateDiff', (ext) => {
   const filenameStylish = getFixturesPath('result_stylish.txt');
@@ -17,7 +22,7 @@ test.each(['json', 'yml'])('generateDiff', (ext) => {
   const filename1 = getFixturesPath(`file1.${ext}`);
   const filename2 = getFixturesPath(`file2.${ext}`);
 
-  expect(generateDiff(filename1, filename2, 'stylish')).toEqual(resultStylish);
-  expect(generateDiff(filename1, filename2, 'plain')).toEqual(resultPlain);
-  expect(generateDiff(filename1, filename2, 'json')).toEqual(resultJson);
+  expect(gendiff(filename1, filename2, 'stylish')).toEqual(resultStylish);
+  expect(gendiff(filename1, filename2, 'plain')).toEqual(resultPlain);
+  expect(gendiff(filename1, filename2, 'json')).toEqual(resultJson);
 });
