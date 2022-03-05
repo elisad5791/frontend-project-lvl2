@@ -4,29 +4,43 @@ const pad = (txt, count) => txt.split('\n')
   .map((item) => `${' '.repeat(count)}${item}`)
   .join('\n');
 
-const formatStylish = (diff) => {
-  const iter = (node, firstIter = false) => {
-    const children = diff.filter((child) => _.isEqual(_.initial(child[0]), node));
+const prepareValue = (node) => {
+  if (_.isPlainObject(node)) {
+    const entries = Object.entries(node);
+    return entries.map(([key, value]) => ({ key, value }));
+  }
+  return node;
+};
 
-    const body = children.map((child) => {
-      const childName = `${_.last(child[0])}`;
-      const val1 = child[1] === '[complex value]' ? iter(child[0]) : child[1];
-      if (child[3] === 'removed') return `- ${childName}: ${val1}`;
-      const val2 = child[2] === '[complex value]' ? iter(child[0]) : child[2];
-      if (child[3] === 'added') return `+ ${childName}: ${val2}`;
-      if (child[3] === 'updated') return `- ${childName}: ${val1}\n+ ${childName}: ${val2}`;
-      const val = val1 || val2;
-      return `  ${childName}: ${val}`;
-    }).join('\n');
+const formatStylish = (diff, firstIter = true) => {
+  const output = diff.map((item) => {
+    if (item.state === 'updated') {
+      const oldValue = prepareValue(item.oldValue);
+      const newValue = prepareValue(item.newValue);
+      const oldVal = Array.isArray(oldValue) ? formatStylish(oldValue, false) : oldValue;
+      const newVal = Array.isArray(newValue) ? formatStylish(newValue, false) : newValue;
+      return `- ${item.key}: ${oldVal}\n+ ${item.key}: ${newVal}`;
+    }
 
-    const count = firstIter ? 2 : 4;
-    const padBody = pad(body, count);
-    const end = firstIter ? '' : '  ';
-    const output = `{\n${padBody}\n${end}}`;
-    return output;
-  };
+    const value = prepareValue(item.value);
+    const val = Array.isArray(value) ? formatStylish(value, false) : value;
+    const str = ` ${item.key}: ${val}`;
 
-  return iter([], true);
+    if (item.state === 'removed') {
+      return `-${str}`;
+    }
+
+    if (item.state === 'added') {
+      return `+${str}`;
+    }
+
+    return ` ${str}`;
+  }).join('\n');
+
+  const count = firstIter ? 2 : 4;
+  const end = firstIter ? '' : '  ';
+  const paddedOutput = pad(output, count);
+  return `{\n${paddedOutput}\n${end}}`;
 };
 
 export default formatStylish;

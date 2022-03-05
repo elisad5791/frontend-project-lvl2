@@ -10,7 +10,7 @@ const getFixturesPath = (filename) => {
   return path.join(__dirname, '..', '__fixtures__', filename);
 };
 
-test.each(['json', 'yml'])('generateDiff', (ext) => {
+test.each(['json', 'yml'])('gendiff', (ext) => {
   const filenameStylish = getFixturesPath('result_stylish.txt');
   const filenamePlain = getFixturesPath('result_plain.txt');
   const filenameJson = getFixturesPath('result_json.txt');

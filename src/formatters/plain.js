@@ -1,21 +1,42 @@
-const formatPlain = (diff) => {
-  const changes = diff.filter((item) => item[3] !== 'saved')
-    .map((item) => {
-      const status = item[3];
+import _ from 'lodash';
 
-      const path = item[0].join('.');
-      const firstVal = (typeof item[1] === 'string' && item[1] !== '[complex value]') ? `'${item[1]}'` : item[1];
-      const secondVal = (typeof item[2] === 'string' && item[2] !== '[complex value]') ? `'${item[2]}'` : item[2];
+const prepareValue = (value) => {
+  if (_.isObject(value)) {
+    return '[complex value]';
+  }
+  if (typeof value === 'string') {
+    return `'${value}'`;
+  }
+  return value;
+};
 
-      const commonPart = `Property '${path}' was ${status}`;
-      const addedPart = ` with value: ${secondVal}`;
-      const updatedPart = `. From ${firstVal} to ${secondVal}`;
+const formatPlain = (diff, path = []) => {
+  const output = diff.map((item) => {
+    const newPath = path.concat(item.key);
+    const node = newPath.join('.');
 
-      if (status === 'added') return `${commonPart}${addedPart}`;
-      if (status === 'updated') return `${commonPart}${updatedPart}`;
-      return `${commonPart}`;
-    }, '');
-  const output = changes.join('\n');
+    if (item.state === 'removed') {
+      return `Property '${node}' was removed`;
+    }
+
+    if (item.state === 'added') {
+      const val = prepareValue(item.value);
+      return `Property '${node}' was added with value: ${val}`;
+    }
+
+    if (item.state === 'updated') {
+      const oldVal = prepareValue(item.oldValue);
+      const newVal = prepareValue(item.newValue);
+      return `Property '${node}' was updated. From ${oldVal} to ${newVal}`;
+    }
+
+    if (!item.state) {
+      return formatPlain(item.value, newPath);
+    }
+
+    return '';
+  }).filter((item) => item).join('\n');
+
   return output;
 };
 
