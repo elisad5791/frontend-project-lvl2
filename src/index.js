@@ -4,7 +4,7 @@ import {
   getFileFormat,
   parse,
 } from './parsers.js';
-import getFormatter from './formatters/index.js';
+import getFormatting from './formatters/index.js';
 import buildDiff from './builddiff.js';
 
 const gendiff = (filename1, filename2, formatName = 'stylish') => {
@@ -15,8 +15,8 @@ const gendiff = (filename1, filename2, formatName = 'stylish') => {
   const obj2 = parse(readFile(path2), getFileFormat(filename2));
 
   const diff = buildDiff(obj1, obj2);
-  const formatter = getFormatter(formatName);
-  return formatter(diff);
+  const formattedDiff = getFormatting(diff, formatName);
+  return formattedDiff;
 };
 
 export default gendiff;

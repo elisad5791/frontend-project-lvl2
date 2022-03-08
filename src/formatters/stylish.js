@@ -4,26 +4,30 @@ const pad = (txt, count) => txt.split('\n')
   .map((item) => `${' '.repeat(count)}${item}`)
   .join('\n');
 
-const prepareValue = (node) => {
-  if (_.isPlainObject(node)) {
-    const entries = Object.entries(node);
-    return entries.map(([key, value]) => ({ key, value }));
+const transform = (obj) => {
+  const entries = Object.entries(obj);
+  return entries.map(([key, value]) => ({ key, value }));
+};
+
+const prepareValue = (value) => {
+  if (_.isPlainObject(value)) {
+    return formatStylish(transform(value), false);
   }
-  return node;
+  if (Array.isArray(value)) {
+    return formatStylish(value, false);
+  }
+  return value;
 };
 
 const formatStylish = (diff, firstIter = true) => {
   const output = diff.map((item) => {
     if (item.state === 'updated') {
-      const oldValue = prepareValue(item.oldValue);
-      const newValue = prepareValue(item.newValue);
-      const oldVal = Array.isArray(oldValue) ? formatStylish(oldValue, false) : oldValue;
-      const newVal = Array.isArray(newValue) ? formatStylish(newValue, false) : newValue;
+      const oldVal = prepareValue(item.oldValue);
+      const newVal = prepareValue(item.newValue);
       return `- ${item.key}: ${oldVal}\n+ ${item.key}: ${newVal}`;
     }
 
-    const value = prepareValue(item.value);
-    const val = Array.isArray(value) ? formatStylish(value, false) : value;
+    const val = prepareValue(item.value);
     const str = ` ${item.key}: ${val}`;
 
     if (item.state === 'removed') {
