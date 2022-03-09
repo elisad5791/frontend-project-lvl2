@@ -1,50 +1,45 @@
 import _ from 'lodash';
 
-const pad = (txt, count) => txt.split('\n')
-  .map((item) => `${' '.repeat(count)}${item}`)
-  .join('\n');
+const pad = (depth) => `  ${' '.repeat(4).repeat(depth - 1)}`;
 
-const transform = (obj) => {
-  const entries = Object.entries(obj);
-  return entries.map(([key, value]) => ({ key, value }));
-};
-
-const prepareValue = (value) => {
-  if (_.isPlainObject(value)) {
-    return formatStylish(transform(value), false);
+const prepareValue = (value, depth) => {
+  if (!_.isObject(value)) {
+    return value;
   }
-  if (Array.isArray(value)) {
-    return formatStylish(value, false);
+  const entries = Object.entries(value);
+  const items = entries.map(([key, val]) => `${pad(depth + 1)}  ${key}: ${prepareValue(val, depth + 1)}`);
+  const body = items.join('\n');
+  return `{\n${body}\n${pad(depth)}  }`;
+};
+
+const parseLine = (key, value, state, depth) => {
+  const chars = { added: '+ ', removed: '- ', unchanged: '  ' };
+  const char = chars[state];
+  const val = prepareValue(value, depth);
+  return `${pad(depth)}${char}${key}: ${val}`;
+};
+
+const parseItem = (item, depth) => {
+  if (item.state !== 'updated') {
+    return parseLine(item.key, item.value, item.state, depth);
   }
-  return value;
+  const line1 = parseLine(item.key, item.oldValue, 'removed', depth);
+  const line2 = parseLine(item.key, item.newValue, 'added', depth);
+  return `${line1}\n${line2}`;
 };
 
-const formatStylish = (diff, firstIter = true) => {
-  const output = diff.map((item) => {
-    if (item.state === 'updated') {
-      const oldVal = prepareValue(item.oldValue);
-      const newVal = prepareValue(item.newValue);
-      return `- ${item.key}: ${oldVal}\n+ ${item.key}: ${newVal}`;
+const parseDiff = (diff, depth) => {
+  const items = diff.map((item) => {
+    if (item.state !== 'complex') {
+      return parseItem(item, depth + 1);
     }
-
-    const val = prepareValue(item.value);
-    const str = ` ${item.key}: ${val}`;
-
-    if (item.state === 'removed') {
-      return `-${str}`;
-    }
-
-    if (item.state === 'added') {
-      return `+${str}`;
-    }
-
-    return ` ${str}`;
-  }).join('\n');
-
-  const count = firstIter ? 2 : 4;
-  const end = firstIter ? '' : '  ';
-  const paddedOutput = pad(output, count);
-  return `{\n${paddedOutput}\n${end}}`;
+    return `${pad(depth + 1)}  ${item.key}: ${parseDiff(item.value, depth + 1)}`;
+  });
+  const body = items.join('\n');
+  const padding = depth === 0 ? '' : `${pad(depth)}  `;
+  return `{\n${body}\n${padding}}`;
 };
+
+const formatStylish = (diff) => parseDiff(diff, 0);
 
 export default formatStylish;

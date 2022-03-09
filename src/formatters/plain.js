@@ -30,7 +30,7 @@ const formatPlain = (diff, path = []) => {
       return `Property '${node}' was updated. From ${oldVal} to ${newVal}`;
     }
 
-    if (!item.state) {
+    if (item.state === 'complex') {
       return formatPlain(item.value, newPath);
     }
 

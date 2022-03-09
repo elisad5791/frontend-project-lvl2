@@ -14,13 +14,10 @@ const buildDiff = (obj1, obj2) => {
       return { key, state: 'unchanged', value: obj1[key] };
     }
     if (_.isObject(obj1[key]) && _.isObject(obj2[key])) {
-      return { key, value: buildDiff(obj1[key], obj2[key]) };
+      return { key, state: 'complex', value: buildDiff(obj1[key], obj2[key]) };
     }
     return {
-      key,
-      state: 'updated',
-      oldValue: obj1[key],
-      newValue: obj2[key],
+      key, state: 'updated', oldValue: obj1[key], newValue: obj2[key],
     };
   });
 
