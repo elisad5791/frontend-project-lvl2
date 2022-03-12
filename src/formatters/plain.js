@@ -11,7 +11,8 @@ const prepareValue = (value) => {
 };
 
 const formatPlain = (diff, path = []) => {
-  const output = diff.filter((item) => item.state !== 'unchanged').map((item) => {
+  const filteredDiff = diff.filter((item) => item.state !== 'unchanged');
+  const output = filteredDiff.map((item) => {
     const newPath = path.concat(item.key);
     const node = newPath.join('.');
 

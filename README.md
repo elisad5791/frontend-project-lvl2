@@ -36,6 +36,6 @@ Utility features:
 
 [Format Stylish video](https://asciinema.org/a/472600)
 
-[Format Plain video](https://asciinema.org/a/472603)
+[Format Plain video](https://asciinema.org/a/476130)
 
-[Format Json video](https://asciinema.org/a/472604)
+[Format Json video](https://asciinema.org/a/476131)
