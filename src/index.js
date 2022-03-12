@@ -1,11 +1,14 @@
-import {
-  getPath,
-  readFile,
-  getFileFormat,
-  parse,
-} from './parsers.js';
-import getFormatting from './formatters/index.js';
+import path from 'path';
+import { readFileSync } from 'fs';
+import parse from './parsers.js';
 import buildDiff from './builddiff.js';
+import getFormatting from './formatters/index.js';
+
+const getPath = (filename) => path.resolve(process.cwd(), filename);
+
+const readFile = (filepath) => readFileSync(filepath, 'utf8');
+
+const getFileFormat = (filename) => path.extname(filename).slice(1);
 
 const gendiff = (filename1, filename2, formatName = 'stylish') => {
   const path1 = getPath(filename1);

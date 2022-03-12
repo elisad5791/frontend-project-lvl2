@@ -11,7 +11,7 @@ const prepareValue = (value) => {
 };
 
 const formatPlain = (diff, path = []) => {
-  const output = diff.map((item) => {
+  const output = diff.filter((item) => item.state !== 'unchanged').map((item) => {
     const newPath = path.concat(item.key);
     const node = newPath.join('.');
 
@@ -25,17 +25,13 @@ const formatPlain = (diff, path = []) => {
     }
 
     if (item.state === 'updated') {
-      const oldVal = prepareValue(item.oldValue);
-      const newVal = prepareValue(item.newValue);
+      const oldVal = prepareValue(item.value.oldValue);
+      const newVal = prepareValue(item.value.newValue);
       return `Property '${node}' was updated. From ${oldVal} to ${newVal}`;
     }
 
-    if (item.state === 'complex') {
-      return formatPlain(item.value, newPath);
-    }
-
-    return '';
-  }).filter((item) => item).join('\n');
+    return formatPlain(item.value, newPath);
+  }).join('\n');
 
   return output;
 };

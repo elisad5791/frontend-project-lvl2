@@ -8,8 +8,8 @@ const getFormatting = (diff, formatName) => {
     json: formatJson,
     stylish: formatStylish,
   };
-  const format = formatters[formatName];
-  return format(diff);
+  const formatter = formatters[formatName];
+  return formatter(diff);
 };
 
 export default getFormatting;
