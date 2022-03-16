@@ -1,4 +1,4 @@
-import { test, expect } from '@jest/globals';
+import { test, expect, beforeAll } from '@jest/globals';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import path from 'path';
@@ -10,15 +10,17 @@ const getFixturesPath = (filename) => {
   return path.join(__dirname, '..', '__fixtures__', filename);
 };
 
+let resultStylish;
+let resultPlain;
+let resultJson;
+
+beforeAll(() => {
+  resultStylish = readFileSync(getFixturesPath('result_stylish.txt'), 'utf8');
+  resultPlain = readFileSync(getFixturesPath('result_plain.txt'), 'utf8');
+  resultJson = readFileSync(getFixturesPath('result_json.txt'), 'utf8');
+});
+
 test.each(['json', 'yml'])('gendiff', (ext) => {
-  const filenameStylish = getFixturesPath('result_stylish.txt');
-  const filenamePlain = getFixturesPath('result_plain.txt');
-  const filenameJson = getFixturesPath('result_json.txt');
-
-  const resultStylish = readFileSync(filenameStylish, 'utf8');
-  const resultPlain = readFileSync(filenamePlain, 'utf8');
-  const resultJson = readFileSync(filenameJson, 'utf8');
-
   const filename1 = getFixturesPath(`file1.${ext}`);
   const filename2 = getFixturesPath(`file2.${ext}`);
 
