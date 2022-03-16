@@ -1,4 +1,4 @@
-import { test, expect, beforeAll } from '@jest/globals';
+import { test, expect, describe } from '@jest/globals';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import path from 'path';
@@ -10,19 +10,14 @@ const getFixturesPath = (filename) => {
   return path.join(__dirname, '..', '__fixtures__', filename);
 };
 
-const result = {};
+const readFile = (filename) => readFileSync(getFixturesPath(filename), 'utf8');
 
-beforeAll(() => {
-  result.stylish = readFileSync(getFixturesPath('result_stylish.txt'), 'utf8');
-  result.plain = readFileSync(getFixturesPath('result_plain.txt'), 'utf8');
-  result.json = readFileSync(getFixturesPath('result_json.txt'), 'utf8');
-});
+describe.each(['stylish', 'plain', 'json'])('output format %s', (format) => {
+  const result = readFile(`result_${format}.txt`);
 
-test.each(['json', 'yml'])('gendiff', (ext) => {
-  const filename1 = getFixturesPath(`file1.${ext}`);
-  const filename2 = getFixturesPath(`file2.${ext}`);
-
-  expect(gendiff(filename1, filename2, 'stylish')).toEqual(result.stylish);
-  expect(gendiff(filename1, filename2, 'plain')).toEqual(result.plain);
-  expect(gendiff(filename1, filename2, 'json')).toEqual(result.json);
+  test.each(['json', 'yml'])('file format %s', (ext) => {
+    const filename1 = getFixturesPath(`file1.${ext}`);
+    const filename2 = getFixturesPath(`file2.${ext}`);
+    expect(gendiff(filename1, filename2, format)).toEqual(result);
+  });
 });
