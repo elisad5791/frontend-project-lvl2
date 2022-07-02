@@ -17,10 +17,12 @@ Utility features:
 
 ### Requirements
 
-- NodeJS
+- node.js
 
 ### Setup
 
+    git clone git@github.com:elisad5791/frontend-project-lvl2.git
+    cd frontend-project-lvl2
     make install
     sudo npm link
 
